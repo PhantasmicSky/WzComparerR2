@@ -652,20 +652,40 @@ namespace WzComparerR2.CharaSimControl
                 {
                     //using var brush = new SolidBrush(color);
                     //g.DrawString(tagName, font, brush, left, picH, fmt);
-                    TextRenderer.DrawText(g, tagName, font, new Rectangle(left, picH, right - left, int.MaxValue), color, TextFormatFlags.HorizontalCenter | TextFormatFlags.NoPadding);
+                    g.CompositingQuality = CompositingQuality.HighQuality;
+                    g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+                    TextRenderer.DrawText(g, tagName, font, new Rectangle(left, picH - 2, right - left, int.MaxValue), color, TextFormatFlags.HorizontalCenter | TextFormatFlags.NoPadding);
                 }
             }
             else // ani mode
             {
                 bool mixedAniMode = wce[1].Bitmap != null && (wce[1].Bitmap.Width > 1 || wce[1].Bitmap.Height > 1);
 
+                //Interim fix for Title [3700834] and [3700833]. The way it renders the title is weird
+                var resPath = resNode.FullPath.Split('\\');
+                bool mixedAniSpecial = resPath[resPath.Length - 2] == "nick" && (resPath[resPath.Length - 1] == "699" || resPath[resPath.Length - 1] == "700");
+
                 offsetY = Math.Min(offsetY, ani0.OpOrigin.Y);
                 height = Math.Max(height, ani0.Rectangle.Bottom);
 
                 int bgWidth = mixedAniMode ? wce[1].Bitmap.Width : nameWidth;
+
+                //Interim fix for Title [3700834] and [3700833]. The way it renders the title is weird
+                bgWidth = mixedAniSpecial ? nameWidth : bgWidth;
+
                 int left = center - bgWidth / 2;
                 int right = left + bgWidth;
                 int nameLeft = center - nameWidth / 2;
+
+                //Interim fix for Title [3700834] and [3700833]. The way it renders the title is weird
+                if (mixedAniSpecial)
+                {
+                    var brush = new TextureBrush(wce[1].Bitmap);
+                    Rectangle rect = new Rectangle(left, picH + ani0.Origin.Y - 1, right - left, brush.Image.Height);
+                    brush.TranslateTransform(rect.X, rect.Y);
+                    g.FillRectangle(brush, rect);
+                    brush.Dispose();
+                }
 
                 picH -= offsetY;
 
@@ -679,8 +699,10 @@ namespace WzComparerR2.CharaSimControl
                     if (!string.IsNullOrEmpty(tagName)) // draw name
                     {
                         using var brush = new SolidBrush(color);
+                        g.CompositingQuality = CompositingQuality.HighQuality;
+                        g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
                         // offsetX with bg for better alignment
-                        g.DrawString(tagName, font, brush, nameLeft - wce[1].Origin.X, picH + (aniNameTag ? -5 : 0), fmt);
+                        g.DrawString(tagName, font, brush, nameLeft - wce[1].Origin.X, picH + (aniNameTag ? -5 : 0) - 2, fmt);
                     }
                 }
                 else

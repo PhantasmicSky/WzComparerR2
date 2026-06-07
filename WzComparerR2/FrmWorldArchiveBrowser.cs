@@ -789,7 +789,7 @@ namespace WzComparerR2
 
         private void UpdateText(string text)
         {
-            this.richDescription.Clear();
+            /*this.richDescription.Clear();
             this.richDescription.AppendText(text);
             this.richDescription.Select(0, text.Length);
             this.richDescription.SelectionColor = DarkMode ? Color.LightGray : System.Drawing.SystemColors.ControlText;
@@ -806,7 +806,41 @@ namespace WzComparerR2
                 "{\\b $1\\b0}",
                 RegexOptions.Singleline
                 );
-            this.richDescription.Select(0, 0);
+            this.richDescription.Select(0, 0);*/
+            richDescription.Clear();
+
+            var boldMatches = Regex.Matches(text, "#e(.*?)#n");
+
+            int offset = 0;
+
+            foreach (Match match in boldMatches)
+            {
+                string before = text.Substring(offset, match.Index - offset);
+                this.richDescription.SelectionFont = new Font("Segoe UI", 12f, FontStyle.Regular);
+                richDescription.AppendText(before);
+
+                string boldText = match.Groups[1].Value;
+                richDescription.SelectionFont = new Font("Segoe UI", 12f, FontStyle.Bold);
+                richDescription.AppendText(boldText);
+
+                richDescription.SelectionFont = new Font("Segoe UI", 12f, FontStyle.Regular);
+
+                offset = match.Index + match.Length;
+            }
+
+            // append remaining text
+            this.richDescription.SelectionFont = new Font("Segoe UI", 12f, FontStyle.Regular);
+            richDescription.AppendText(text.Substring(offset));
+            this.richDescription.Select(0, text.Length);
+            this.richDescription.SelectionColor = DarkMode ? Color.LightGray : System.Drawing.SystemColors.ControlText;
+        }
+
+        private string EscapeToRtf(string text)
+        {
+            return text
+                .Replace(@"\", @"\\")
+                .Replace("{", @"\{")
+                .Replace("}", @"\}");
         }
 
         public void LoadCmbRegion()

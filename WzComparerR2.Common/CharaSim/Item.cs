@@ -25,6 +25,7 @@ namespace WzComparerR2.CharaSim
         public int Level { get; set; }
         public int? DamageSkinID { get; set; }
         public int? FamiliarID { get; set; }
+        public int? NickTagID { get; set; }
         public int Grade { get; set; }
         public string ConsumableFrom { get; set; }
         public string EndUseDate { get; set; }
@@ -152,6 +153,10 @@ namespace WzComparerR2.CharaSim
 
                         case "familiarID":
                             item.FamiliarID = Convert.ToInt32(subNode.Value);
+                            break;
+
+                        case "nickTag":
+                            item.NickTagID = Convert.ToInt32(subNode.Value);
                             break;
 
                         case "grade":

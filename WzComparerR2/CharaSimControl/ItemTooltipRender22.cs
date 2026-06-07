@@ -928,6 +928,18 @@ namespace WzComparerR2.CharaSimControl
                 }
             }
 
+            // TITLE PREVIEW
+
+            if (item.ItemID / 10000 == 370)
+            {
+                picH += 4;
+                var _getNode = TryGetNickResource((long)item.NickTagID, out Wz_Node NickResNode);
+                GearGraphics.DrawNameTag(g, NickResNode, itemName, tooltip.Width, ref picH);
+                picH += 4;
+            }
+
+            // TITLE PREVIEW END
+
             picH = Math.Max(iconY + 92, picH + 2);
             return tooltip;
         }
